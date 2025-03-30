@@ -10,6 +10,14 @@ app.use(bodyParser.json());
 
 mongoose.connect(MONGODB_CONNECTION);
 
+const MODEL_PATHS = {
+    
+    'randomForest_50': '../ml-models/random_forest_model_50.0.pkl',
+    'randomForest_70': '../ml-models/random_forest_model_70.0.pkl',
+    'svm_80': '../ml-models/svm_model_80.0.pkl',
+    'svm_90': '../ml-models/svm_model_90.0.pkl',
+  };
+
 const Prediction = mongoose.model("Prediction", {
   symptoms: [String],
   predictedDisease: String,

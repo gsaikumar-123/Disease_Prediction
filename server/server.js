@@ -11,11 +11,46 @@ app.use(bodyParser.json());
 mongoose.connect(MONGODB_CONNECTION);
 
 const MODEL_PATHS = {
-    
-    'randomForest_50': '../ml-models/random_forest_model_50.0.pkl',
-    'randomForest_70': '../ml-models/random_forest_model_70.0.pkl',
-    'svm_80': '../ml-models/svm_model_80.0.pkl',
-    'svm_90': '../ml-models/svm_model_90.0.pkl',
+    'randomForest_50': '../ml_models/Random_Forest_model_50.0.pkl',
+    'randomForest_60': '../ml_models/Random_Forest_model_60.0.pkl',
+    'randomForest_70': '../ml_models/Random_Forest_model_70.0.pkl',
+    'randomForest_80': '../ml_models/Random_Forest_model_80.0.pkl',
+    'randomForest_90': '../ml_models/Random_Forest_model_90.0.pkl',
+    'svm_50': '../ml_models/SVM_model_50.0.pkl',
+    'svm_60': '../ml_models/SVM_model_60.0.pkl',
+    'svm_70': '../ml_models/SVM_model_70.0.pkl',
+    'svm_80': '../ml_models/SVM_model_80.0.pkl',
+    'svm_90': '../ml_models/SVM_model_90.0.pkl',
+    'knn_50': '../ml_models/KNN_model_50.0.pkl',
+    'knn_60': '../ml_models/KNN_model_60.0.pkl',
+    'knn_70': '../ml_models/KNN_model_70.0.pkl',
+    'knn_80': '../ml_models/KNN_model_80.0.pkl',
+    'knn_90': '../ml_models/KNN_model_90.0.pkl',
+    'adaBoost_50': '../ml_models/AdaBoost_model_50.0.pkl',
+    'adaBoost_60': '../ml_models/AdaBoost_model_60.0.pkl',
+    'adaBoost_70': '../ml_models/AdaBoost_model_70.0.pkl',
+    'adaBoost_80': '../ml_models/AdaBoost_model_80.0.pkl',
+    'adaBoost_90': '../ml_models/AdaBoost_model_90.0.pkl',
+    'decisionTree_50': '../ml_models/Decision_Tree_model_50.0.pkl',
+    'decisionTree_60': '../ml_models/Decision_Tree_model_60.0.pkl',
+    'decisionTree_70': '../ml_models/Decision_Tree_model_70.0.pkl',
+    'decisionTree_80': '../ml_models/Decision_Tree_model_80.0.pkl',
+    'decisionTree_90': '../ml_models/Decision_Tree_model_90.0.pkl',
+    'logisticRegression_50': '../ml_models/Logistic_Regression_model_50.0.pkl',
+    'logisticRegression_60': '../ml_models/Logistic_Regression_model_60.0.pkl',
+    'logisticRegression_70': '../ml_models/Logistic_Regression_model_70.0.pkl',
+    'logisticRegression_80': '../ml_models/Logistic_Regression_model_80.0.pkl',
+    'logisticRegression_90': '../ml_models/Logistic_Regression_model_90.0.pkl',
+    'naiveBayes_50': '../ml_models/Naive_Bayes_model_50.0.pkl',
+    'naiveBayes_60': '../ml_models/Naive_Bayes_model_60.0.pkl',
+    'naiveBayes_70': '../ml_models/Naive_Bayes_model_70.0.pkl',
+    'naiveBayes_80': '../ml_models/Naive_Bayes_model_80.0.pkl',
+    'naiveBayes_90': '../ml_models/Naive_Bayes_model_90.0.pkl',
+    'gradientBoosting_50': '../ml_models/Gradient_Boosting_model_50.0.pkl',
+    'gradientBoosting_60': '../ml_models/Gradient_Boosting_model_60.0.pkl',
+    'gradientBoosting_70': '../ml_models/Gradient_Boosting_model_70.0.pkl',
+    'gradientBoosting_80': '../ml_models/Gradient_Boosting_model_80.0.pkl',
+    'gradientBoosting_90': '../ml_models/Gradient_Boosting_model_90.0.pkl',
   };
 
 const Prediction = mongoose.model("Prediction", {
@@ -33,42 +68,31 @@ const SYMPTOMS = [
 ];
 
 app.post("/predict", async (req, res) => {
-  try {
-    const { symptoms } = req.body;
-    
-    if (!symptoms || symptoms.length === 0) {
-      return res.status(400).json({ error: "Please select symptoms." });
-    }
-
-    
-    const input = Array(SYMPTOMS.length).fill(0);
-    symptoms.forEach(symptom => {
-      const index = SYMPTOMS.indexOf(symptom);
-      if (index !== -1) input[index] = 1;
-    });
-
-    const options = {
-      mode: 'text',
-      pythonPath: '/usr/bin/python3', // Change to your Python path
-      scriptPath: '../ml_models',
-      args: [JSON.stringify(input)]
-    };
-
-    PythonShell.run('predict.py', options, (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Prediction failed" });
+    try {
+      const { symptoms, modelKey } = req.body; // Now expects modelKey
+      
+      if (!symptoms || symptoms.length === 0) {
+        return res.status(400).json({ error: "Please select symptoms." });
       }
-      const prediction = results[0];
-      
-      new Prediction({ symptoms, predictedDisease: prediction }).save();
-      
-      res.json({ disease: prediction });
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-app.listen(5000, () => console.log("Server running on http://localhost:5000"));
+  
+      const input = Array(SYMPTOMS.length).fill(0);
+      symptoms.forEach(symptom => {
+        const index = SYMPTOMS.indexOf(symptom);
+        if (index !== -1) input[index] = 1;
+      });
+  
+      const options = {
+        mode: 'text',
+        pythonPath: '/usr/bin/python3',
+        scriptPath: '../ml-models',
+        args: [JSON.stringify(input), modelKey]
+      };
+  
+      PythonShell.run('predict.py', options, (err, results) => {
+        if (err) return res.status(500).json({ error: "Prediction failed" });
+        res.json({ disease: results[0] });
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Server error" });
+    }
+  });

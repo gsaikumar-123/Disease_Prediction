@@ -19,6 +19,7 @@ app.post('/api/predict', async (req, res) => {
             __dirname, 
             'public', 
             'models', 
+            model,
             `${model}_model_${training_percentage}.0.pkl`
         );
 

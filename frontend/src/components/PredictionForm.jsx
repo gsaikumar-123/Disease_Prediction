@@ -40,7 +40,7 @@ const PredictionForm = () => {
             setError('Please select at least one symptom');
             return;
         }
-
+    
         setLoading(true);
         setError(null);
         
@@ -48,13 +48,13 @@ const PredictionForm = () => {
             const inputData = SYMPTOMS.map(symptom => 
                 selectedSymptoms.includes(symptom) ? 1 : 0
             );
-            
+    
             const response = await axios.post('http://localhost:5000/api/predict', {
-                model: selectedModel,
+                model: selectedModel.replace(' ', '_'),
                 training_percentage: trainingPercentage,
                 symptoms: inputData
             });
-
+    
             setPrediction(response.data.prediction);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to make prediction');

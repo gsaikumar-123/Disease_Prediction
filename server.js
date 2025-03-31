@@ -16,12 +16,12 @@ app.post('/api/predict', async (req, res) => {
         const { model, training_percentage, symptoms } = req.body;
         const symptomsString = symptoms.join(' ');
         const modelPath = path.join(
-            __dirname, 
-            'public', 
-            'models', 
-            model,
-            `${model}_model_${training_percentage}.0.pkl`
-        );
+            __dirname,
+            'public',
+            'models',
+            model.replace(/ /g, '_'),
+            `${model.replace(/ /g, '_')}_model_${training_percentage}.0.pkl`
+        ).replace(/\\/g, '\\\\');
 
         if (!fs.existsSync(modelPath)) {
             return res.status(400).json({
